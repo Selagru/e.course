@@ -1,0 +1,108 @@
+{% extends 'treegraph/base_treegraph.html' %}
+
+{% block title %}
+index
+{% endblock %}
+
+{% block dropdown %}
+
+    <li class="nav-item active dropdown" >
+        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Выбор вариантов настроек
+        </a>
+        <div class="dropdown-menu active" aria-labelledby="navbarDropdown">
+            {% for x in time_settings %}
+
+                <a class="dropdown-item" href="#" id="switch-btn-{{forloop.counter}}" role="button">{{x}} - {{x.id}}</a>
+
+
+            {% endfor %}
+        </div>
+    </li>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+
+            <div class="col-9">
+                <table class="table table-hover">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Имя вершины</th>
+                            <th scope="col">Этап изучаемого предмета</th>
+                            <th scope="col">Handle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table %}
+                            <tr>
+                                <th scope="row">{{ row.node.id }}</th>
+                                <td>{{ row.node.name }}</td>
+                                <td>{{ row.node.lvl }}</td>
+                                <td>
+                                    {% for setting in row.settings %}
+                                    <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover"
+                                       id="sett-{{forloop.counter}}" data-placement="right"
+                                            data-content='
+                                                {% for set_row in setting %}
+                                                    <p> {{ set_row.string }} -- {{ set_row.time }}</p>
+                                                {% endfor %}
+                                            '>
+
+                                        Посмотреть время
+                                    </a>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="col-3">
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div class="table">
+        {% for row in table %}
+            <div class="node-info">
+                <h2><a href="{% url 'detail' row.node.id %}">{{ row.node.name }}</a></h2>
+                <p>Этап изучаемого предмета: {{ row.node.lvl }}</p>
+            </div>
+            <!--{% for setting in row.settings %}-->
+                <!--<div class="settings" id="sett-{{forloop.counter}}">-->
+                    <!--{% for set_row in setting %}-->
+                        <!--<p> {{ set_row.string }} &#45;&#45; {{ set_row.time }}</p>-->
+                    <!--{% endfor %}-->
+                <!--</div>-->
+            <!--{% endfor %}-->
+        {% endfor %}
+    </div>
+
+    <script>
+        var ids = document.querySelectorAll('.dropdown-item')                                                           <!--Выбираем все елементы выпадашки-->
+        ids.forEach(function(item, index){                                                                              <!--Выбираем все index из каждого элемента выпадашки-->
+            document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'none');         <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
+        })
+        document.querySelectorAll('#sett-' + 1).forEach(element => element.style.display = 'block');                    <!--Делаем видимыми настройки с index 1-->
+
+        ids.forEach(function(item, index){                                                                              <!--Для каждого элемента выпадашки-->
+            item.addEventListener('click', event => {                                                                       <!--Добавляем следующее действие на клик-->
+                ids.forEach(function(item, index){                                                                              <!--Выбираем все index из каждого элемента выпадашки-->
+                    document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'none');         <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
+                })
+                document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'block');            <!--Показываем все настройки с id = индексу элемента выпадашки-->
+            })
+        });
+        console.log('go v lol');        <!--Идём катать, чувствуя себя победителями!-->
+    </script>
+{% endblock %}

@@ -1,0 +1,2 @@
+def graph(request):
+    pass
