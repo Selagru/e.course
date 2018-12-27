@@ -12,7 +12,7 @@ index
         </a>
         <div class="dropdown-menu active" aria-labelledby="navbarDropdown">
             {% for x in time_settings %}
-                <a class="dropdown-item" href="#" id="switch-btn-{{forloop.counter}}" role="button">{{x}}</a>
+                <a class="dropdown-item" href="#" role="button">{{x}}</a>
             {% endfor %}
         </div>
     </li>
@@ -22,68 +22,105 @@ index
     <div class="container">
         <div class="row">
 
-            <div class="col-9">
-                <table class="table table-hover">
+                <div class="col-9">
+                    <div class="shadow p-3 mb-5 bg-white rounded">
+                        <table class="table table-hover">
 
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Имя вершины</th>
-                            <th scope="col">Этап изучаемого предмета</th>
-                            <th scope="col">Время для изучения</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in table %}
-                            <tr>
-                                <th scope="row">{{ row.node.id }}</th>
-                                <td><a href="{% url 'detail' row.node.id %}">{{ row.node.name }}</a></td>
-                                <td>{{ row.node.lvl }}</td>
-                                <td>
-                                    {% for setting in row.settings %}
-                                    <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover"
-                                       data-trigger="focus" title="Коэффициенты № {{forloop.counter}}" id="sett-{{forloop.counter}}" data-placement="right"
-                                            data-content='
-                                                {% for set_row in setting %}
-                                                    {{ set_row.string }} - {{ set_row.time }}
-                                                {% endfor %}
-                                            '>
+                            <thead class="table-success">
+                                <tr>
+                                    <th scope="col">Имя вершины</th>
+                                    <th scope="col">Уровень освоения студентом</th>
+                                    <th scope="col">Время для изучения</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table %}
+                                    <tr>
+                                        <td><a href="{% url 'detail' row.node.id %}">{{ row.node.name }}</a></td>
+                                        <td>{{ row.node.stud_lvl }}</td>
+                                        <td>
+                                            {% for setting in row.settings %}
+                                                <div class="settings-var-{{forloop.counter}}">
+                                                    <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover"
+                                                       data-trigger="focus" title="Коэффициенты № {{forloop.counter}}" id="sett-{{forloop.counter}}" data-placement="right"
+                                                            data-content='
+                                                                {% for set_row in setting %}
+                                                                    {{ set_row.string }} - {{ set_row.time }}
+                                                                {% endfor %}
+                                                            '>
 
-                                        Детальный обзор
-                                    </a>
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
+                                                        Детальный обзор
+                                                    </a>
+                                                </div>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
             <div class="col-3">
-                <h3>Тут должна быть общая статистика:</h3>
-                <p>Должны высвечиваться сами коэфициенты</p>
-                <p>Общее время по уровням на обход всего графа (изучение всего материала)</p>
+                <div class="shadow mb-5 bg-white rounded">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-header">Временные коэффициенты</div>
+                        <div class="card-body">
+                            {% for time in time_table %}
+                                <div class="settings-var-{{forloop.counter}}">
+                                    <h5 class="card-title">Настройка № {{forloop.counter}}</h5>
+                                    <p>t_alpha - {{time.setting.t_alpha}}</p>
+                                    <p>k_knowledge - {{time.setting.k_knowledge}}</p>
+                                    <p>k_practise - {{time.setting.k_practise}}</p>
+                                    <p>k_skill - {{time.setting.k_skill}}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="width: 18rem;">
+                    <div class="card-header">Время на изучение материала</div>
+                    <div class="card-body">
+                        {% for time in time_table %}
+                        <div class="settings-var-{{forloop.counter}}">
+                            <p class="card-text">Для 1го уровня - {{time.sum1}} минут</p>
+                            <p class="card-text">Для 2го уровня - {{time.sum2}} минут</p>
+                            <p class="card-text">Для 3го уровня - {{time.sum3}} минут</p>
+                            <p class="card-text">Для 4го уровня - {{time.sum4}} минут</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card" style="width: 18rem;">
+                    <div class="card-header">Время на изучение материала конткретного студента</div>
+                    <div class="card-body">
+                        {% for time in level_time_table %}
+                        <div class="settings-var-{{forloop.counter}}">
+                            <p class="card-text">{{time.level_sum}} минут</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
 
     <script>
-        var ids = document.querySelectorAll('.dropdown-item')                                                           <!--Выбираем все елементы выпадашки-->
-        ids.forEach(function(item, index){                                                                              <!--Выбираем все index из каждого элемента выпадашки-->
-            document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'none');         <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
+        var ids = document.querySelectorAll('.dropdown-item')                                                                   <!--Выбираем все елементы выпадашки-->
+        ids.forEach(function(item, index){                                                                                      <!--Выбираем все index из каждого элемента выпадашки-->
+            document.querySelectorAll('.settings-var-' + (index+1)).forEach(element => element.style.display = 'none');         <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
         })
-        document.querySelectorAll('#sett-' + 1).forEach(element => element.style.display = 'block');                    <!--Делаем видимыми настройки с index 1-->
-
-        ids.forEach(function(item, index){                                                                              <!--Для каждого элемента выпадашки-->
-            item.addEventListener('click', event => {                                                                       <!--Добавляем следующее действие на клик-->
+        document.querySelectorAll('.settings-var-' + 1).forEach(element => element.style.display = 'block');                    <!--Делаем видимыми настройки с 'index = 1'-->
+        ids.forEach(function(item, index){                                                                                      <!--Для каждого элемента выпадашки-->
+            item.addEventListener('click', event => {                                                                           <!--Добавляем следующее действие на клик-->
                 ids.forEach(function(item, index){                                                                              <!--Выбираем все index из каждого элемента выпадашки-->
-                    document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'none');         <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
+                    document.querySelectorAll('.settings-var-' + (index+1)).forEach(element => element.style.display = 'none'); <!--Делаем все выводимые данные по времени невидимыми для каждого index-->
                 })
-                document.querySelectorAll('#sett-' + (index+1)).forEach(element => element.style.display = 'block');            <!--Показываем все настройки с id = индексу элемента выпадашки-->
+                document.querySelectorAll('.settings-var-' + (index+1)).forEach(element => element.style.display = 'block');    <!--Показываем все настройки с id = индексу элемента выпадашки-->
             })
         });
+
         console.log('go v lol');        <!--Идём катать, чувствуя себя победителями!-->
     </script>
 {% endblock %}

@@ -2,10 +2,10 @@ from django.db import models
 
 
 class TimeSettings(models.Model):
-    t_alpha = models.IntegerField("время на восприятие одного понятия", default=2)
-    k_knowledge = models.IntegerField("коэффициент усложнения при создании связей", default=2)
-    k_practise = models.IntegerField("коэффициент усложнения при практическом освоении умения", default=4)
-    k_skill = models.IntegerField("коэффициент усложнения при приобретении навыка", default=8)
+    t_alpha = models.FloatField("время на восприятие одного понятия", default=2, max_length=4)
+    k_knowledge = models.FloatField("коэффициент усложнения при создании связей", default=2, max_length=4)
+    k_practise = models.FloatField("коэффициент усложнения при практическом освоении умения", default=4, max_length=4)
+    k_skill = models.FloatField("коэффициент усложнения при приобретении навыка", default=8, max_length=4)
 
     def __str__(self):
         return "Коэффициенты временных затрат № %d" % self.pk
@@ -16,12 +16,19 @@ class Nodes(models.Model):  # Вершина графа
     name = models.CharField("Название понятия", max_length=100)  # Имя вершины
     lvl = models.IntegerField("Этап изучаемого предмета", default=0)  # Уровень освоения
 
-    def __str__(self):
-        return self.name
+    def p_stage(self):  # метод возвращающий Этап изучаемого предмета для каждой вершины
+        p_stage = 1
+        if self.id > 1:
+            p_stage += Edges.objects.get(child=self.id).parent.p_stage()
+
+        return p_stage
+
+    def stud_lvl(self):
+        return int(self.levels_set.get().level)
 
     def time_math(self, pk=1):
         p_child = self.edges_set.count()  # - кол-во потомков данной вершины
-        p_stage = self.lvl  # кол-во этапов изучаемого предмета(Кол-во вершин или всё же lvl)
+        p_stage = self.p_stage()  # кол-во этапов изучаемого предмета(Кол-во вершин или всё же lvl)
 
         ts = TimeSettings.objects.get(pk=pk)  # переменные из экземпляра класса TimeSettings
 
@@ -38,6 +45,9 @@ class Nodes(models.Model):  # Вершина графа
         return [{"string": 'Минут для освоения уровня 1', "time": lvl1}, {"string": 'Минут для освоения уровня 2', "time": lvl2},
                 {"string": 'Минут для освоения уровня 3', "time": lvl3}, {"string": 'Минут для освоения уровня 4', "time": lvl4}]
 
+    def __str__(self):
+        return self.name
+
 
 class Edges(models.Model):  # Грань графа
     parent = models.ForeignKey(Nodes, verbose_name="Вершина-родитель", on_delete=models.CASCADE)
@@ -46,6 +56,30 @@ class Edges(models.Model):  # Грань графа
 
     def __str__(self):
         return "Понятие '%s' раскрывается через понятие '%s'" % (self.parent.name, self.child.name)
+
+
+class Students(models.Model):
+    group = models.CharField("Группа студента", max_length=20)
+    first_name = models.CharField("Имя студента", max_length=100)
+    last_name = models.CharField("Фамилия студента", max_length=100)
+
+    def __str__(self):
+        return self.last_name
+
+
+class Levels(models.Model):
+    student_id = models.ForeignKey(Students, verbose_name="Студент", on_delete=models.CASCADE)
+    node_id = models.ForeignKey(Nodes, verbose_name="связанная вершина", on_delete=models.CASCADE)
+    level = models.IntegerField("Уровень изучения вершины", default=0)
+
+    def __str__(self):
+        return "Уровень изучения вершины '%s'" % self.node_id.name
+
+
+
+
+
+
 
 
 
