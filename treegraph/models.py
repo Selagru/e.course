@@ -16,19 +16,22 @@ class Nodes(models.Model):  # Вершина графа
     name = models.CharField("Название понятия", max_length=100)  # Имя вершины
     lvl = models.IntegerField("Этап изучаемого предмета", default=0)  # Уровень освоения
 
-    def p_stage(self):  # метод возвращающий Этап изучаемого предмета для каждой вершины
+    '''def p_stage(self):  # метод возвращающий Этап изучаемого предмета для каждой вершины
         p_stage = 1
         if self.id > 1:
             p_stage += Edges.objects.get(child=self.id).parent.p_stage()
 
-        return p_stage
+        return p_stage'''
 
     def stud_lvl(self):
         return int(self.levels_set.get().level)
 
     def time_math(self, pk=1):
-        p_child = self.edges_set.count()  # - кол-во потомков данной вершины
-        p_stage = self.p_stage()  # кол-во этапов изучаемого предмета(Кол-во вершин или всё же lvl)
+        if self.edges_set.count() == 0:  # - кол-во потомков данной вершины(UPD)И ЭТАПОВ ИЗУЧАЕМОГО ПРЕДМЕТА.
+            p_child = p_stage = 5
+        else:
+            p_child = p_stage = self.edges_set.count()
+            # p_stage = self.p_stage()  # кол-во этапов изучаемого предмета(Кол-во вершин или всё же lvl)
 
         ts = TimeSettings.objects.get(pk=pk)  # переменные из экземпляра класса TimeSettings
 
@@ -37,10 +40,10 @@ class Nodes(models.Model):  # Вершина графа
         time3 = time2 * ts.k_practise  # время на формирование умения
         time4 = time2 * ts.k_skill  # время на формирование навыка
 
-        lvl1 = time1
-        lvl2 = time2 + lvl1
-        lvl3 = time3 + lvl2
-        lvl4 = time4 + lvl3
+        lvl1 = round(time1)
+        lvl2 = round(time2 + lvl1)
+        lvl3 = round(time3 + lvl2)
+        lvl4 = round(time4 + lvl3)
 
         return [{"string": 'Минут для освоения уровня 1', "time": lvl1}, {"string": 'Минут для освоения уровня 2', "time": lvl2},
                 {"string": 'Минут для освоения уровня 3', "time": lvl3}, {"string": 'Минут для освоения уровня 4', "time": lvl4}]
