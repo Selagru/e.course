@@ -22,14 +22,15 @@ index
     <div class="container">
         <div class="row">
 
-                <div class="col-8">
+                <div class="col-9">
                     <div class="shadow p-3 mb-5 bg-white rounded">
                         <table class="table table-hover">
 
                             <thead class="table-success">
                                 <tr>
                                     <th scope="col">Имя вершины</th>
-                                    <th scope="col">Уровень нормативного освоения</th>
+                                    <th scope="col">LVL</th>
+                                    <th scope="col">Для нормативного освоения:</th>
                                     <th scope="col">Время для изучения</th>
                                 </tr>
                             </thead>
@@ -37,7 +38,14 @@ index
                                 {% for row in table %}
                                     <tr>
                                         <td><a href="{% url 'detail' row.node.id %}">{{ row.node.name }}</a></td>
-                                        <td>{{ row.node.stud_lvl }}</td>
+                                        <td>{{ row.node.lvl }}</td>
+                                        <td>
+                                            {% for actual in row.actual_time %}
+                                                <div class="settings-var-{{forloop.counter}}">
+                                                    <p>{{actual.act_t_h}} часов {{actual.act_t_m}} мин</p>
+                                                </div>
+                                            {% endfor %}
+                                        </td>
                                         <td>
                                             {% for setting in row.settings %}
                                                 <div class="settings-var-{{forloop.counter}}">
@@ -45,7 +53,7 @@ index
                                                        data-trigger="focus" title="Коэффициенты № {{forloop.counter}}" id="sett-{{forloop.counter}}" data-placement="right"
                                                             data-content='
                                                                 {% for set_row in setting %}
-                                                                    {{ set_row.string }} - {{ set_row.time }}
+                                                                    {{ set_row.string }} {{ set_row.time_h }} часов {{ set_row.time_m }} минут
                                                                 {% endfor %}
                                                             '>
 
@@ -61,7 +69,35 @@ index
                     </div>
                 </div>
 
-            <div class="col-4">
+            <div class="col-3">
+                <div class="shadow mb-3 bg-white rounded">
+                    <div class="card" style="">
+                        <div class="card-header">Время на изучение по уровням</div>
+                        <div class="card-body">
+                            {% for time in time_table %}
+                            <div class="settings-var-{{forloop.counter}}">
+                                <p class="card-text">Уровень 1: {{time.sum1}} ч {{time.sum1_m}} м</p>
+                                <p class="card-text">Уровень 2: {{time.sum2}} ч {{time.sum2_m}} м</p>
+                                <p class="card-text">Уровень 3: {{time.sum3}} ч {{time.sum3_m}} м</p>
+                                <p class="card-text">Уровень 4: {{time.sum4}} ч {{time.sum4_m}} м</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shadow mb-3 bg-white rounded">
+                    <div class="card" style="">
+                        <div class="card-header">Время на изучение по нормативам</div>
+                        <div class="card-body">
+                            {% for time in level_time_table %}
+                            <div class="settings-var-{{forloop.counter}}">
+                                <p class="card-text">{{time.level_sum_h}} часов {{time.level_sum_m}} минут</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
                 <div class="shadow mb-3 bg-white rounded">
                     <div class="card" style="">
                         <div class="card-header">Временные коэффициенты</div>
@@ -69,38 +105,11 @@ index
                             {% for time in time_table %}
                                 <div class="settings-var-{{forloop.counter}}">
                                     <h5 class="card-title">Настройка № {{forloop.counter}}</h5>
-                                    <p>t_alpha - {{time.setting.t_alpha}}</p>
-                                    <p>k_knowledge - {{time.setting.k_knowledge}}</p>
-                                    <p>k_practise - {{time.setting.k_practise}}</p>
-                                    <p>k_skill - {{time.setting.k_skill}}</p>
+                                    <p>t_alpha - {{time.coefficients.t_alpha}}</p>
+                                    <p>k_knowledge - {{time.coefficients.k_knowledge}}</p>
+                                    <p>k_practise - {{time.coefficients.k_practise}}</p>
+                                    <p>k_skill - {{time.coefficients.k_skill}}</p>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="shadow mb-3 bg-white rounded">
-                    <div class="card" style="">
-                        <div class="card-header">Время на изучение по нормативам</div>
-                        <div class="card-body">
-                            {% for time in level_time_table %}
-                            <div class="settings-var-{{forloop.counter}}">
-                                <p class="card-text">{{time.level_sum}} минут</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="shadow mb-3 bg-white rounded">
-                    <div class="card" style="">
-                        <div class="card-header">Время на изучение по уровням</div>
-                        <div class="card-body">
-                            {% for time in time_table %}
-                            <div class="settings-var-{{forloop.counter}}">
-                                <p class="card-text">Для 1го уровня - {{time.sum1}} минут</p>
-                                <p class="card-text">Для 2го уровня - {{time.sum2}} минут</p>
-                                <p class="card-text">Для 3го уровня - {{time.sum3}} минут</p>
-                                <p class="card-text">Для 4го уровня - {{time.sum4}} минут</p>
-                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -126,5 +135,6 @@ index
         });
 
         console.log('go v lol');        <!--Идём катать, чувствуя себя победителями!-->
+
     </script>
 {% endblock %}

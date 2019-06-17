@@ -1,45 +1,21 @@
-'''import networkx as nx
-
-
-G = nx.Graph()
-G.add_edges_from([(1, 2), (1, 3), (2, 4), (2, 5)])
-for n in G.nodes:
-    G.add_nodes_from([n], pos=[n+1, n+2])
-print(G.node[1])
-print(G.nodes)
-print(G.edges)
-pos = nx.get_node_attributes(G, 'pos')
-print(pos)'''
-
-
-
-
-
-
-
-
-
-
-
-
 from plotly.offline import plot
 import plotly.graph_objs as go
-
 import networkx as nx
+
 
 G = nx.Graph()
 G.add_edges_from([(1, 2), (1, 3), (2, 4), (2, 5)])
 
 
-G.add_nodes_from([1], pos=[0.3, 0.3])
-G.add_nodes_from([2], pos=[0.4, 0.2])
-G.add_nodes_from([3], pos=[0.4, 0.4])
-G.add_nodes_from([4], pos=[0.5, 0.1])
-G.add_nodes_from([5], pos=[0.5, 0.3])
+G.add_nodes_from([1], pos=[0.0, 0.0])
+G.add_nodes_from([2], pos=[0.1, 0.2])
+G.add_nodes_from([3], pos=[0.1, -0.2])
+G.add_nodes_from([4], pos=[0.2, 0.4])
+G.add_nodes_from([5], pos=[0.2, -0.2])
 
 pos = nx.get_node_attributes(G, 'pos')
 print(pos)
-
+print(G.node)
 dmin = 1
 ncenter = 0
 for n in pos:
@@ -53,7 +29,7 @@ p = nx.single_source_shortest_path_length(G, ncenter)
 
 # Create Edges
 
-edge_trace = go.Scatter(x=[], y=[], line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
+edge_trace = go.Scatter(x=[], y=[], line=dict(width=5.5, color='#888', shape='spline', smoothing=1.3), hoverinfo='none', mode='lines')
 
 for edge in G.edges():
     x0, y0 = G.node[edge[0]]['pos']
@@ -111,7 +87,36 @@ fig = go.Figure(data=[edge_trace, node_trace],
                     showarrow=False,
                     xref="paper", yref="paper",
                     x=0.005, y=-0.002)],
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+                xaxis=dict(showgrid=True, zeroline=True, showticklabels=True),
+                yaxis=dict(showgrid=True, zeroline=True, showticklabels=True)))
 
-plot(fig, filename='templates/treegraph/networkx.html')
+plot(fig, filename='networkx.html', auto_open=False)
+
+
+
+
+
+'''
+Эта штука нужна что бы располагать вершины в графе относительно своих братьев
+
+neighbour = [2]
+for edge in Edges.objects.all():
+    G.add_edges_from([(edge.parent, edge.child)])  # добавляем грань в граф
+    neighbour.append(edge.parent.edges_set.count() + 1)  # добавляем для каждой вершины кол-во её братьев
+    # print(edge.child, ' - ', edge.parent.edges_set.count() + 1)
+# print(neighbour)
+
+count = 0
+y = 0
+for node in Nodes.objects.order_by('depth'):
+    x = node.depth
+    divider = 10000/neighbour[count]
+    if neighbour[count] != neighbour[count-1] or count == 0:
+        y = divider
+        G.add_nodes_from([node], pos=[x, y])
+    else:
+        y += divider
+        G.add_nodes_from([node], pos=[x, y])
+    # neighbours = node.edges_set.count()  # кол-ви детей у вершины
+    count += 1
+'''
