@@ -92,8 +92,7 @@ def detail(request, Nodes_id):
     return render(request, 'treegraph/node_edit_old.html', context={'array': form})
 
 
-def graph(request):
-    return render(request, 'treegraph/networkx.html')
+
 
 
 # -------------------------------------------- make a tree graph -------------------------------------------------------
@@ -156,4 +155,7 @@ fig = go.Figure(data=[edge_trace, node_trace],
                                  xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                                  yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
 
-plot(fig, filename='treegraph/templates/treegraph/networkx.html', auto_open=False)
+
+def graph(request):
+    plot(fig, filename='treegraph/templates/treegraph/networkx.html', auto_open=False)
+    return render(request, 'treegraph/networkx.html')
